@@ -9,11 +9,9 @@ export async function render(container, params = {}) {
   const { default: html } = await import('./viewDocument.html?raw')
   container.innerHTML = html
 
-  // Render navbar
+  // Start navbar rendering (don't block on it)
   const navbarPlaceholder = container.querySelector('#navbar-placeholder')
-  if (navbarPlaceholder) {
-    await renderNavbar(navbarPlaceholder)
-  }
+  const navbarPromise = navbarPlaceholder ? renderNavbar(navbarPlaceholder) : Promise.resolve()
   
   const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '')
   const docId = params.id || hashParams.get('id')
@@ -28,7 +26,8 @@ export async function render(container, params = {}) {
   const content = document.getElementById('documentContent')
 
   try {
-    const doc = await getDocument(docId)
+    // Fetch document and finish navbar in parallel
+    const [doc] = await Promise.all([getDocument(docId), navbarPromise])
     if (!doc) throw new Error('Document not found')
 
     await displayDocument(doc)

@@ -12,14 +12,18 @@ export async function loadPage(pageName, params = {}) {
     appContainer = document.getElementById('app')
   }
 
-  // Show loading state
-  appContainer.innerHTML = `
-    <div class="d-flex justify-content-center align-items-center vh-100">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+  // Only show a spinner if the container is empty (initial load).
+  // For subsequent navigations the previous page stays visible until
+  // the new one is ready, avoiding a jarring flash.
+  if (!appContainer.children.length) {
+    appContainer.innerHTML = `
+      <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
-  `
+    `
+  }
 
   try {
     // Parse page name and parameters from URL if needed
@@ -76,12 +80,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Detect Supabase password-recovery redirect (token arrives in the URL hash)
   const hash = window.location.hash
   if (hash && hash.includes('type=recovery')) {
-    // Let Supabase SDK parse the token from the hash before loading the page
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(
-      import.meta.env.VITE_SUPABASE_URL,
-      import.meta.env.VITE_SUPABASE_ANON_KEY
-    )
+    // Reuse the existing Supabase client to parse the token
+    const { supabase } = await import('./services/authService.js')
     await supabase.auth.getSession() // processes the hash token
     history.replaceState(null, '', window.location.pathname) // clean up URL
     loadPage('resetPassword')

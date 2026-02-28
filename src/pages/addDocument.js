@@ -7,10 +7,10 @@ export async function render(container) {
   const { default: html } = await import('./addDocument.html?raw')
   container.innerHTML = html
 
-  // Render navbar inside the placeholder
+  // Start navbar rendering without blocking
   const navbarPlaceholder = container.querySelector('#navbar-placeholder')
   if (navbarPlaceholder) {
-    await renderNavbar(navbarPlaceholder)
+    renderNavbar(navbarPlaceholder)
   }
   
   const form = document.getElementById('addDocForm')
@@ -30,6 +30,17 @@ function setupDropZone() {
 
   const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png']
 
+  const updateDisplay = (file) => {
+    if (fileNameDisplay) {
+      fileNameDisplay.textContent = file ? file.name : ''
+    }
+    // Show success styling when a file is selected
+    if (file) {
+      dropZone.style.borderColor = '#198754'
+      dropZone.style.backgroundColor = '#f0fdf4'
+    }
+  }
+
   const setFile = (file) => {
     if (!allowedTypes.includes(file.type)) {
       alert('Unsupported file type. Please upload a PDF, JPG, or PNG.')
@@ -39,31 +50,60 @@ function setupDropZone() {
       alert('File is too large. Maximum size is 5MB.')
       return
     }
-    // Transfer the dropped file to the input via DataTransfer
     const dt = new DataTransfer()
     dt.items.add(file)
     fileInput.files = dt.files
-    if (fileNameDisplay) fileNameDisplay.textContent = file.name
+    updateDisplay(file)
   }
 
-  // Click anywhere in the zone to open file picker
-  dropZone.addEventListener('click', () => fileInput.click())
+  // Prevent the file input click from bubbling back to the dropZone
+  fileInput.addEventListener('click', (e) => e.stopPropagation())
+
+  // Click or double-click anywhere in the zone to open file picker
+  const openPicker = () => fileInput.click()
+  dropZone.addEventListener('click', openPicker)
+  dropZone.addEventListener('dblclick', openPicker)
+
+  // When file is selected via the OS dialog
   fileInput.addEventListener('change', () => {
-    if (fileNameDisplay) fileNameDisplay.textContent = fileInput.files[0]?.name || ''
+    const file = fileInput.files[0]
+    if (file) {
+      if (!allowedTypes.includes(file.type)) {
+        alert('Unsupported file type. Please upload a PDF, JPG, or PNG.')
+        fileInput.value = ''
+        updateDisplay(null)
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File is too large. Maximum size is 5MB.')
+        fileInput.value = ''
+        updateDisplay(null)
+        return
+      }
+      updateDisplay(file)
+    }
   })
 
   // Drag & drop events
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault()
+    e.stopPropagation()
     dropZone.style.backgroundColor = '#e2e6ea'
     dropZone.style.borderColor = '#0d6efd'
   })
-  dropZone.addEventListener('dragleave', () => {
+  dropZone.addEventListener('dragenter', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+  })
+  dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     dropZone.style.backgroundColor = ''
     dropZone.style.borderColor = ''
   })
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault()
+    e.stopPropagation()
     dropZone.style.backgroundColor = ''
     dropZone.style.borderColor = ''
     if (e.dataTransfer.files.length) {

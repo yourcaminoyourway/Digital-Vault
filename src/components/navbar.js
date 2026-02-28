@@ -1,24 +1,8 @@
-import { getCurrentUser, signOut, loadPage, supabase } from '../services/authService.js'
+import { getCurrentUser, signOut, loadPage, getDisplayName } from '../services/authService.js'
 
 export async function renderNavbar(container) {
   const user = await getCurrentUser()
-  
-  let fullName = user?.email || 'User'
-  
-  if (user?.id) {
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .maybeSingle()
-      if (data?.full_name) {
-        fullName = data.full_name
-      }
-    } catch (e) {
-      // Fall back to email if profile lookup fails
-    }
-  }
+  const fullName = user ? await getDisplayName() : 'User'
   
   const authLinks = `
     <li class="nav-item">

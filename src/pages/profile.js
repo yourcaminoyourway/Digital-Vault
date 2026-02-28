@@ -1,16 +1,17 @@
-import { getCurrentUser, loadPage, supabase, changePassword } from '../services/authService.js'
+import { getCurrentUser, loadPage, supabase, changePassword, clearDisplayNameCache } from '../services/authService.js'
 import { renderNavbar } from '../components/navbar.js'
 
 export async function render(container) {
   const { default: html } = await import('./profile.html?raw')
   container.innerHTML = html
 
+  // Start navbar + auth check in parallel
   const navbarPlaceholder = container.querySelector('#navbar-placeholder')
-  if (navbarPlaceholder) {
-    await renderNavbar(navbarPlaceholder)
-  }
+  const [, user] = await Promise.all([
+    navbarPlaceholder ? renderNavbar(navbarPlaceholder) : Promise.resolve(),
+    getCurrentUser()
+  ])
 
-  const user = await getCurrentUser()
   if (!user) {
     loadPage('login')
     return
@@ -136,6 +137,9 @@ async function saveProfile(userId) {
 
       if (insertError) throw insertError
     }
+
+    // Clear cached display name so navbar picks up the new one
+    clearDisplayNameCache()
 
     showMessage('Profile updated successfully.', 'success')
   } catch (error) {

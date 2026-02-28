@@ -6,14 +6,12 @@ export async function render(container) {
   const { default: html } = await import('./landing.html?raw')
   container.innerHTML = html
   
-  // Render navbar inside the placeholder
+  // Start navbar + auth check in parallel
   const navbarPlaceholder = container.querySelector('#navbar-placeholder')
-  if (navbarPlaceholder) {
-    await renderNavbar(navbarPlaceholder)
-  }
-
-  // Check auth state to update Hero buttons
-  const user = await getCurrentUser()
+  const [, user] = await Promise.all([
+    navbarPlaceholder ? renderNavbar(navbarPlaceholder) : Promise.resolve(),
+    getCurrentUser()
+  ])
   if (user) {
     const heroContent = container.querySelector('.hero-section .col-lg-8')
     if (heroContent) {

@@ -8,15 +8,14 @@ export async function render(container) {
   const { default: html } = await import('./dashboard.html?raw')
   container.innerHTML = html
   
-  // Render navbar inside the placeholder
+  // Start navbar + auth check in parallel
   const navbarPlaceholder = container.querySelector('#navbar-placeholder')
-  if (navbarPlaceholder) {
-    await renderNavbar(navbarPlaceholder)
-  }
+  const [, user] = await Promise.all([
+    navbarPlaceholder ? renderNavbar(navbarPlaceholder) : Promise.resolve(),
+    getCurrentUser()
+  ])
   
-  const user = await getCurrentUser()
   if (!user) {
-    // Should be handled by router, but as a safeguard
     loadPage('login')
     return
   }

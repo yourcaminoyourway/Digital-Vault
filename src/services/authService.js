@@ -11,6 +11,16 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 })
 
+// ── In-memory cache to avoid repeated getSession() / profile queries ──
+let _cachedUser = undefined   // undefined = not yet fetched, null = no session
+let _cachedDisplayName = null // cached profile name
+
+// Listen for auth changes to keep cache in sync
+supabase.auth.onAuthStateChange((_event, session) => {
+  _cachedUser = session?.user ?? null
+  if (!session) _cachedDisplayName = null
+})
+
 async function ensureUserSetup(user) {
   if (!user?.id) return
 
@@ -96,17 +106,51 @@ export async function sendPasswordResetEmail(email) {
 }
 
 export async function getCurrentUser() {
+  // Return cached user if we've already fetched this session
+  if (_cachedUser !== undefined) return _cachedUser
+
   try {
     const { data: { session }, error } = await supabase.auth.getSession()
     if (error) {
       console.error('Error getting user:', error)
+      _cachedUser = null
       return null
     }
-    return session?.user ?? null
+    _cachedUser = session?.user ?? null
+    return _cachedUser
   } catch (error) {
     console.error('Error in getCurrentUser:', error)
+    _cachedUser = null
     return null
   }
+}
+
+/**
+ * Returns the user's display name (cached after first fetch).
+ * Falls back to email if profile lookup fails.
+ */
+export async function getDisplayName() {
+  if (_cachedDisplayName) return _cachedDisplayName
+
+  const user = await getCurrentUser()
+  if (!user) return 'User'
+
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .maybeSingle()
+    _cachedDisplayName = data?.full_name || user.email || 'User'
+  } catch {
+    _cachedDisplayName = user.email || 'User'
+  }
+  return _cachedDisplayName
+}
+
+/** Clear the display name cache (e.g. after profile update) */
+export function clearDisplayNameCache() {
+  _cachedDisplayName = null
 }
 
 export async function getUserRole(userId) {

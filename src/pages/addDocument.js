@@ -34,87 +34,111 @@ function setupDropZone() {
     if (fileNameDisplay) {
       fileNameDisplay.textContent = file ? file.name : ''
     }
-    // Show success styling when a file is selected
     if (file) {
       dropZone.style.borderColor = '#198754'
       dropZone.style.backgroundColor = '#f0fdf4'
+    } else {
+      dropZone.style.borderColor = ''
+      dropZone.style.backgroundColor = ''
     }
   }
 
-  const setFile = (file) => {
+  const validateAndSet = (file) => {
     if (!allowedTypes.includes(file.type)) {
       alert('Unsupported file type. Please upload a PDF, JPG, or PNG.')
-      return
+      return false
     }
     if (file.size > 5 * 1024 * 1024) {
       alert('File is too large. Maximum size is 5MB.')
-      return
+      return false
     }
     const dt = new DataTransfer()
     dt.items.add(file)
     fileInput.files = dt.files
     updateDisplay(file)
+    return true
   }
 
-  // Prevent the file input click from bubbling back to the dropZone
-  fileInput.addEventListener('click', (e) => e.stopPropagation())
+  // ── Click handling ──
+  // Move file input outside the dropZone so its click doesn't bubble
+  dropZone.parentNode.appendChild(fileInput)
 
-  // Click or double-click anywhere in the zone to open file picker
-  const openPicker = () => fileInput.click()
-  dropZone.addEventListener('click', openPicker)
-  dropZone.addEventListener('dblclick', openPicker)
+  dropZone.addEventListener('click', () => {
+    fileInput.click()
+  })
 
-  // When file is selected via the OS dialog
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0]
     if (file) {
-      if (!allowedTypes.includes(file.type)) {
-        alert('Unsupported file type. Please upload a PDF, JPG, or PNG.')
+      if (!validateAndSet(file)) {
         fileInput.value = ''
         updateDisplay(null)
-        return
       }
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File is too large. Maximum size is 5MB.')
-        fileInput.value = ''
-        updateDisplay(null)
-        return
-      }
-      updateDisplay(file)
     }
   })
 
-  // Drag & drop events
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    dropZone.style.backgroundColor = '#e2e6ea'
-    dropZone.style.borderColor = '#0d6efd'
-  })
+  // ── Drag & drop ──
+  let dragCounter = 0
+
   dropZone.addEventListener('dragenter', (e) => {
     e.preventDefault()
     e.stopPropagation()
+    dragCounter++
+    dropZone.style.backgroundColor = '#e2e6ea'
+    dropZone.style.borderColor = '#0d6efd'
   })
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+  })
+
   dropZone.addEventListener('dragleave', (e) => {
     e.preventDefault()
     e.stopPropagation()
-    dropZone.style.backgroundColor = ''
-    dropZone.style.borderColor = ''
+    dragCounter--
+    if (dragCounter <= 0) {
+      dragCounter = 0
+      dropZone.style.backgroundColor = ''
+      dropZone.style.borderColor = ''
+    }
   })
+
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault()
     e.stopPropagation()
+    dragCounter = 0
     dropZone.style.backgroundColor = ''
     dropZone.style.borderColor = ''
-    if (e.dataTransfer.files.length) {
-      setFile(e.dataTransfer.files[0])
-    }
+    const file = e.dataTransfer.files[0]
+    if (file) validateAndSet(file)
   })
+}
+
+function validateDates() {
+  const purchaseDate = document.getElementById('purchaseDate')?.value
+  const warrantyExpiry = document.getElementById('warrantyExpiry')?.value
+
+  const checkYear = (dateStr, fieldName) => {
+    if (!dateStr) return true
+    const year = new Date(dateStr).getFullYear()
+    if (year < 1900 || year > 2099) {
+      alert(`${fieldName}: Year must be between 1900 and 2099.`)
+      return false
+    }
+    return true
+  }
+
+  if (!checkYear(purchaseDate, 'Purchase Date')) return false
+  if (!checkYear(warrantyExpiry, 'Warranty Expiry Date')) return false
+  return true
 }
 
 async function handleAddDocument(e) {
   e.preventDefault()
   
+  if (!validateDates()) return
+
   const user = await getCurrentUser()
   
   const title = document.getElementById('title').value

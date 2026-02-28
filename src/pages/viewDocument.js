@@ -3,6 +3,7 @@ import { getDocument, deleteDocument } from '../services/documentService.js'
 import { downloadFile, getSignedUrl } from '../services/storageService.js'
 import { renderNavbar } from '../components/navbar.js'
 import { showDeleteConfirmModal } from '../components/deleteConfirmModal.js'
+import { renderPdfThumbnail } from '../utils/pdfPreview.js'
 import { Dropdown } from 'bootstrap'
 
 export async function render(container, params = {}) {
@@ -31,15 +32,22 @@ export async function render(container, params = {}) {
     if (!doc) throw new Error('Document not found')
 
     await displayDocument(doc)
-
-    const actionDropdownToggle = document.querySelector('[data-bs-toggle="dropdown"]')
-    if (actionDropdownToggle) {
-      Dropdown.getOrCreateInstance(actionDropdownToggle)
-    }
     
-    // Hide loading, show content
+    // Hide loading, show content FIRST so Bootstrap can measure the DOM
     loadingState.classList.add('d-none')
     content.classList.remove('d-none')
+
+    // Initialize dropdown AFTER content is visible
+    const actionDropdownToggle = content.querySelector('[data-bs-toggle="dropdown"]')
+    if (actionDropdownToggle) {
+      Dropdown.getOrCreateInstance(actionDropdownToggle)
+
+      // Ensure clicking the button toggles the menu
+      actionDropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation()
+        Dropdown.getOrCreateInstance(actionDropdownToggle).toggle()
+      })
+    }
 
     // Edit handler
     const editBtn = document.getElementById('editAction')
@@ -126,10 +134,30 @@ async function displayDocument(doc) {
         // Keep icon fallback
       }
     } else if (/\.pdf$/i.test(fileName)) {
-      fileIconPlaceholder.innerHTML = `
-        <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 6rem;"></i>
-        <p class="text-white-50 mt-3 mb-0" id="fileName">${fileName || 'document.pdf'}</p>
-      `
+      // Render actual first-page preview for PDFs
+      try {
+        const signedUrl = await getSignedUrl('documents', doc.file_path, 3600)
+        if (signedUrl) {
+          // Set up a light background container with a loading spinner
+          fileIconPlaceholder.parentElement.style.background = '#f8fafc'
+          fileIconPlaceholder.innerHTML = `
+            <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+              <div class="spinner-border spinner-border-sm text-secondary" role="status"><span class="visually-hidden">Loading…</span></div>
+              <span class="small text-muted mt-2">Loading preview…</span>
+            </div>
+          `
+          // Replace placeholder with actual rendered PDF thumbnail
+          const targetEl = fileIconPlaceholder
+          targetEl.style.cssText = 'width:100%;min-height:300px;overflow:hidden;display:flex;align-items:center;justify-content:center;'
+          targetEl.parentElement.style.background = '#f8fafc'
+          await renderPdfThumbnail(targetEl, signedUrl, { targetHeight: 300 })
+        }
+      } catch (e) {
+        fileIconPlaceholder.innerHTML = `
+          <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 6rem;"></i>
+          <p class="text-white-50 mt-3 mb-0">${fileName || 'document.pdf'}</p>
+        `
+      }
     } else {
       fileIconPlaceholder.innerHTML = `
         <i class="bi bi-file-earmark-lock2 text-white opacity-50" style="font-size: 6rem;"></i>

@@ -3,6 +3,7 @@ import { getUserDocuments, deleteDocument } from '../services/documentService.js
 import { renderNavbar } from '../components/navbar.js'
 import { getSignedUrl } from '../services/storageService.js'
 import { showDeleteConfirmModal } from '../components/deleteConfirmModal.js'
+import { renderPdfThumbnail } from '../utils/pdfPreview.js'
 
 export async function render(container) {
   const { default: html } = await import('./dashboard.html?raw')
@@ -89,25 +90,40 @@ async function loadDocuments(userId) {
         } catch (e) { /* fall through to file banner */ }
       }
 
+      // PDF — render first-page thumbnail
+      if (!previewHtml && isPdf && doc.file_path) {
+        try {
+          const signedUrl = await getSignedUrl('documents', doc.file_path, 3600)
+          if (signedUrl) {
+            const thumbId = `pdf-thumb-${doc.id}`
+            previewHtml = `
+              <div id="${thumbId}" data-pdf-url="${signedUrl}" class="mb-3 rounded-3 overflow-hidden border d-flex flex-column align-items-center justify-content-center" style="height: 140px; background: #f8fafc;">
+                <div class="spinner-border spinner-border-sm text-secondary" role="status"><span class="visually-hidden">Loading…</span></div>
+                <span class="small text-muted mt-2">Loading preview…</span>
+              </div>
+            `
+          }
+        } catch (e) { /* fall through to file banner */ }
+      }
+
       if (!previewHtml && doc.file_path) {
-        // Non-image file — show a styled file-type banner
+        // Non-image, non-PDF file — show a styled file-type banner
         let fileIcon = 'bi-file-earmark-text'
         let fileLabel = fileName
         let fileBg = '#f1f5f9'
         let fileIconColor = '#64748b'
-        if (isPdf)   { fileIcon = 'bi-file-earmark-pdf';        fileIconColor = '#ef4444'; fileBg = '#fff1f1' }
         if (isDoc)   { fileIcon = 'bi-file-earmark-word';       fileIconColor = '#2563eb'; fileBg = '#eff6ff' }
         if (isSheet) { fileIcon = 'bi-file-earmark-spreadsheet';fileIconColor = '#16a34a'; fileBg = '#f0fdf4' }
         previewHtml = `
-          <div class="mb-3 rounded-3 d-flex align-items-center gap-3 px-3" style="height: 64px; background: ${fileBg}; border: 1px solid rgba(0,0,0,0.07);">
-            <i class="bi ${fileIcon} fs-2" style="color: ${fileIconColor}; flex-shrink:0;"></i>
-            <span class="small fw-semibold text-truncate" style="color: #374151; max-width: 100%;">${fileLabel}</span>
+          <div class="mb-3 rounded-3 d-flex flex-column align-items-center justify-content-center" style="height: 140px; background: ${fileBg}; border: 1px solid rgba(0,0,0,0.07);">
+            <i class="bi ${fileIcon}" style="font-size: 2.5rem; color: ${fileIconColor};"></i>
+            <span class="small fw-semibold text-truncate mt-2 px-3" style="color: #374151; max-width: 100%;">${fileLabel}</span>
           </div>
         `
       }
 
       if (!previewHtml) {
-        // No file uploaded — show a brief metadata summary
+        // No file uploaded — show a brief metadata summary (same height as image previews)
         const purchaseText = doc.purchase_date
           ? new Date(doc.purchase_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
           : null
@@ -120,8 +136,9 @@ async function loadDocuments(userId) {
         if (expiryText)     rows.push(`<span><i class="bi bi-hourglass-split me-1 opacity-50"></i>Expires ${expiryText}</span>`)
         if (doc.description) rows.push(`<span class="text-truncate" style="max-width:100%;"><i class="bi bi-chat-left-text me-1 opacity-50"></i>${doc.description.slice(0, 60)}${doc.description.length > 60 ? '…' : ''}</span>`)
         previewHtml = `
-          <div class="mb-3 rounded-3 px-3 py-2 d-flex flex-column gap-1" style="height: 64px; justify-content: center; background: #f8fafc; border: 1px dashed #cbd5e1; overflow: hidden;">
-            <div class="d-flex flex-wrap gap-3 small text-muted">
+          <div class="mb-3 rounded-3 px-3 py-3 d-flex flex-column align-items-center justify-content-center gap-2" style="height: 140px; background: #f8fafc; border: 1px dashed #cbd5e1; overflow: hidden;">
+            <i class="bi bi-folder2-open" style="font-size: 2rem; color: #94a3b8;"></i>
+            <div class="d-flex flex-wrap justify-content-center gap-3 small text-muted">
               ${rows.length ? rows.join('') : '<span class="text-muted fst-italic">No file attached</span>'}
             </div>
           </div>
@@ -200,6 +217,13 @@ async function loadDocuments(userId) {
     }))
 
     container.innerHTML = cards.join('')
+
+    // Render PDF thumbnails now that the DOM is populated
+    const pdfThumbs = container.querySelectorAll('[data-pdf-url]')
+    pdfThumbs.forEach(el => {
+      const url = el.getAttribute('data-pdf-url')
+      if (url) renderPdfThumbnail(el, url)
+    })
 
     // Build expiry alert banner
     const expiredDocs = documents.filter(d => getExpiryStatus(d.warranty_expiry).status === 'expired')

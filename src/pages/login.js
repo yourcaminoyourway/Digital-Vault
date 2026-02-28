@@ -5,6 +5,17 @@ export async function render(container) {
   container.innerHTML = html
   
   document.getElementById('loginForm').addEventListener('submit', handleLogin)
+
+  // Password visibility toggle
+  const toggleBtn = container.querySelector('#togglePassword')
+  const passwordInput = container.querySelector('#password')
+  if (toggleBtn && passwordInput) {
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password'
+      passwordInput.type = isPassword ? 'text' : 'password'
+      toggleBtn.querySelector('i').className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye'
+    })
+  }
 }
 
 async function handleLogin(e) {
@@ -16,7 +27,7 @@ async function handleLogin(e) {
   
   try {
     submitBtn.disabled = true
-    submitBtn.textContent = 'Logging in...'
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...'
     await signIn(email, password)
     showMessage('Login successful! Redirecting...', 'success')
     await loadPage('dashboard')
@@ -27,7 +38,7 @@ async function handleLogin(e) {
     showMessage('Login failed: ' + error.message + details, 'danger')
   } finally {
     submitBtn.disabled = false
-    submitBtn.textContent = 'Login'
+    submitBtn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Sign In'
   }
 }
 
@@ -35,5 +46,5 @@ function showMessage(msg, type) {
   const messageEl = document.getElementById('message')
   messageEl.textContent = msg
   messageEl.className = `alert alert-${type}`
-  messageEl.style.display = 'block'
+  messageEl.classList.remove('d-none')
 }

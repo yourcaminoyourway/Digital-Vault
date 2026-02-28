@@ -18,13 +18,16 @@ export async function render(container) {
     const heroContent = container.querySelector('.hero-section .col-lg-8')
     if (heroContent) {
       heroContent.innerHTML = `
+        <div class="hero-icon-wrap mx-auto mb-4">
+          <i class="bi bi-safe2-fill"></i>
+        </div>
         <h1 class="display-3 fw-bold mb-4">Welcome back!</h1>
         <p class="lead mb-5">Your digital vault is ready. Add a new document or manage your existing ones.</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-          <button class="btn btn-light btn-lg px-5 fw-bold text-primary shadow-sm" onclick="loadPage('addDocument')">
+          <button class="btn btn-hero-primary btn-lg px-5 shadow" onclick="loadPage('addDocument')">
             <i class="bi bi-plus-lg me-2"></i>Add Document
           </button>
-          <button class="btn btn-lg px-5 fw-bold" onclick="loadPage('dashboard')" style="background: rgba(255,255,255,0.15); color: #fff; border: 2px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px);">
+          <button class="btn btn-hero-outline btn-lg px-5" onclick="loadPage('dashboard')">
             <i class="bi bi-folder2-open me-2"></i>My Documents
           </button>
         </div>

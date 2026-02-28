@@ -1,0 +1,27 @@
+{
+  "name": "digital-vault",
+  "version": "1.0.0",
+  "description": "Secure Document &amp; Warranty Organizer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourcaminoyourway/Digital-Vault.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yourcaminoyourway/Digital-Vault/issues"
+  },
+  "homepage": "https://github.com/yourcaminoyourway/Digital-Vault#readme",
+  "devDependencies": {
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
+    "bootstrap": "^5.3.8"
+  }
+}

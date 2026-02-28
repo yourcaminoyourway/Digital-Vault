@@ -33,3 +33,12 @@ export async function downloadFile(bucket, path) {
   if (error) throw error
   return data
 }
+
+export async function getSignedUrl(bucket, path, expiresIn = 3600) {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUrl(path, expiresIn)
+
+  if (error) throw error
+  return data?.signedUrl ?? null
+}

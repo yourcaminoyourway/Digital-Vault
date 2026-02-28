@@ -1,0 +1,79 @@
+
+<div id="navbar-placeholder"></div>
+
+<div class="container py-5 mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-outline-secondary me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="loadPage('dashboard')">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <h2 class="fw-bold m-0">Edit Document</h2>
+      </div>
+
+      <div class="card shadow-md border-0">
+        <div class="card-body p-4 p-md-5">
+          <form id="editDocForm">
+            <div class="row g-3">
+              <div class="col-12">
+                <label for="title" class="form-label fw-semibold">Document Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg" id="title" required>
+              </div>
+              
+              <div class="col-12">
+                <label for="description" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control" id="description" rows="3"></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label for="category" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                <select class="form-select" id="category" required>
+                  <option value="" disabled>Select type...</option>
+                  <option value="Warranty">Warranty</option>
+                  <option value="Receipt">Receipt</option>
+                  <option value="Manual">Manual</option>
+                  <option value="Insurance">Insurance Policy</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label for="itemName" class="form-label fw-semibold">Item Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="itemName" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="itemBrand" class="form-label fw-semibold">Brand / Manufacturer</label>
+                <input type="text" class="form-control" id="itemBrand">
+              </div>
+
+              <div class="col-md-6">
+                <label for="purchaseDate" class="form-label fw-semibold">Purchase Date</label>
+                <input type="date" class="form-control" id="purchaseDate">
+              </div>
+
+              <div class="col-12">
+                 <label for="warrantyExpiry" class="form-label fw-semibold">Warranty Expiry Date</label>
+                 <div class="input-group">
+                   <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
+                   <input type="date" class="form-control border-start-0 ps-0" id="warrantyExpiry">
+                 </div>
+              </div>
+
+              <!-- No file upload for edit simply to keep it simple, just metadata edit for now -->
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end mt-5">
+              <button type="button" class="btn btn-light px-4" onclick="loadPage('dashboard')">Cancel</button>
+              <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">
+                <i class="bi bi-check-lg me-2"></i>Update Document
+              </button>
+            </div>
+          </form> 
+          
+          <div id="message" class="alert mt-4 shadow-sm" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

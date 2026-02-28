@@ -3,14 +3,63 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+})
+
+async function ensureUserSetup(user) {
+  if (!user?.id) return
+
+  const fullName =
+    user.user_metadata?.full_name ||
+    user.email?.split('@')?.[0] ||
+    'User'
+
+  // Keep setup resilient: do not block auth if optional tables/policies are not ready.
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .upsert(
+      {
+        id: user.id,
+        email: user.email ?? null,
+        full_name: fullName
+      },
+      { onConflict: 'id' }
+    )
+
+  if (profileError) {
+    console.warn('Profile setup skipped:', profileError.message)
+  }
+}
 
 export async function signUp(email, password) {
   const { data, error } = await supabase.auth.signUp({
     email,
-    password
+    password,
+    options: {
+      emailRedirectTo: window.location.origin
+    }
   })
   if (error) throw error
+
+  if (!data?.user) {
+    throw new Error('Registration failed. Please try again.')
+  }
+
+  // Supabase can return a user with empty identities when account already exists.
+  if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    throw new Error('This email is already registered. Please log in instead.')
+  }
+
+  // If email confirmation is off, session exists now. If on, we will also run setup on first login.
+  if (data.session) {
+    await ensureUserSetup(data.user)
+  }
+
   return data
 }
 
@@ -20,6 +69,12 @@ export async function signIn(email, password) {
     password
   })
   if (error) throw error
+  if (!data?.session) {
+    throw new Error('Login succeeded but no session was created. Please verify your email and try again.')
+  }
+
+  await ensureUserSetup(data.user)
+
   return data
 }
 
@@ -28,10 +83,30 @@ export async function signOut() {
   if (error) throw error
 }
 
-export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser()
+export async function changePassword(newPassword) {
+  const { data, error } = await supabase.auth.updateUser({ password: newPassword })
   if (error) throw error
-  return user
+  return data
+}
+
+export async function sendPasswordResetEmail(email) {
+  const redirectTo = `${window.location.origin}${window.location.pathname}`
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+  if (error) throw error
+}
+
+export async function getCurrentUser() {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error) {
+      console.error('Error getting user:', error)
+      return null
+    }
+    return session?.user ?? null
+  } catch (error) {
+    console.error('Error in getCurrentUser:', error)
+    return null
+  }
 }
 
 export async function getUserRole(userId) {
@@ -45,22 +120,30 @@ export async function getUserRole(userId) {
   return data.role
 }
 
+export async function loadPage(pageName, params = {}) {
+  const main = await import('../main.js')
+  return main.loadPage(pageName, params)
+}
+
 export async function initializeApp() {
-  const user = await getCurrentUser()
-  if (!user) {
-    // Redirect to login
-    loadPage('login')
-  } else {
-    // Load dashboard
-    loadPage('dashboard')
+  try {
+    const user = await getCurrentUser()
+    
+    if (!user) {
+      // Redirect to landing page for new users
+      loadPage('landing')
+    } else {
+      // Load dashboard for authenticated users
+      loadPage('dashboard')
+    }
+  } catch (error) {
+    console.error('Failed to initialize app:', error)
+    // Still load landing page on error
+    try {
+      const { loadPage } = await import('../main.js')
+      loadPage('landing')
+    } catch (e) {
+      console.error('Failed to load landing page:', e)
+    }
   }
 }
-
-function loadPage(pageName) {
-  const app = document.getElementById('app')
-  import(`../pages/${pageName}.js`)
-    .then(module => module.render(app))
-    .catch(err => console.error(`Failed to load ${pageName}:`, err))
-}
-
-export { loadPage }

@@ -1,0 +1,23 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <div class="card" style="width: 100%; max-width: 400px;">
+    <div class="card-body">
+      <h2 class="card-title text-center mb-4">DigitalVault Login</h2>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" autocomplete="email" required>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label for="password" class="form-label mb-0">Password</label>
+            <a href="#" onclick="loadPage('forgotPassword')" class="text-muted small text-decoration-none">Forgot password?</a>
+          </div>
+          <input type="password" class="form-control" id="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+      <p class="text-center mt-3">Don't have an account? <a href="#" onclick="loadPage('register')">Register</a></p>
+      <div id="message" class="alert mt-3" style="display: none;"></div>
+    </div>
+  </div>
+</div>

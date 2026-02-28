@@ -111,6 +111,7 @@ async function saveProfile(userId) {
   const message = document.getElementById('message')
   const saveBtn = document.getElementById('saveBtn')
   const fullName = document.getElementById('fullName')?.value?.trim() || null
+  const email = document.getElementById('email')?.value?.trim() || ''
 
   try {
     if (saveBtn) {
@@ -118,16 +119,28 @@ async function saveProfile(userId) {
       saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...'
     }
 
-    const { error } = await supabase
+    // Try update first (profile row usually exists)
+    const { data: updated, error: updateError } = await supabase
       .from('profiles')
-      .upsert({ id: userId, full_name: fullName }, { onConflict: 'id' })
+      .update({ full_name: fullName })
+      .eq('id', userId)
+      .select()
 
-    if (error) throw error
+    if (updateError) throw updateError
+
+    // If no row was updated, insert a new profile
+    if (!updated || updated.length === 0) {
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({ id: userId, email, full_name: fullName })
+
+      if (insertError) throw insertError
+    }
 
     showMessage('Profile updated successfully.', 'success')
   } catch (error) {
     console.error('Failed to save profile:', error)
-    showMessage('Could not save profile. Please try again.', 'danger')
+    showMessage(`Could not save profile: ${error.message || error.details || JSON.stringify(error)}`, 'danger')
   } finally {
     if (saveBtn) {
       saveBtn.disabled = false

@@ -6,6 +6,9 @@ import { initializeApp } from './services/authService.js'
 // App container
 let appContainer
 
+// Flag to prevent pushState when handling popstate (back/forward)
+let _isPopping = false
+
 // Page routing system
 export async function loadPage(pageName, params = {}) {
   if (!appContainer) {
@@ -40,6 +43,17 @@ export async function loadPage(pageName, params = {}) {
     const pageTitle = page.charAt(0).toUpperCase() + page.slice(1)
     document.title = `${pageTitle} - DigitalVault`
 
+    // ── History management ──────────────────────────────────────────
+    // Build a URL path from page + params, e.g. /viewDocument?id=abc
+    const allParams = { ...routeParams }
+    const qs = new URLSearchParams(allParams).toString()
+    const url = '/' + page + (qs ? '?' + qs : '')
+
+    if (!_isPopping) {
+      // Only push if this isn't triggered by the browser back/forward button
+      history.pushState({ page: pageName, params: routeParams }, '', url)
+    }
+
     // Dynamically import the page module
     const pageModule = await import(`./pages/${page}.js`)
 
@@ -73,6 +87,37 @@ export async function loadPage(pageName, params = {}) {
 // Make loadPage globally available for onclick handlers
 window.loadPage = loadPage
 
+// ── Handle browser back / forward buttons ─────────────────────────────
+window.addEventListener('popstate', (event) => {
+  _isPopping = true
+  if (event.state && event.state.page) {
+    loadPage(event.state.page, event.state.params || {}).finally(() => {
+      _isPopping = false
+    })
+  } else {
+    // No state — try to derive page from the current URL path
+    const page = pageFromUrl()
+    loadPage(page.name, page.params).finally(() => {
+      _isPopping = false
+    })
+  }
+})
+
+/** Derive page name + params from the current URL */
+function pageFromUrl() {
+  const path = window.location.pathname.replace(/^\/+/, '') || ''
+  const search = window.location.search
+  const params = search ? Object.fromEntries(new URLSearchParams(search)) : {}
+  // Map known page files; fall back to 'landing' for root / unknown
+  const validPages = [
+    'dashboard', 'viewDocument', 'editDocument', 'addDocument',
+    'login', 'register', 'profile', 'landing',
+    'forgotPassword', 'resetPassword'
+  ]
+  const name = validPages.includes(path) ? path : ''
+  return { name, params }
+}
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async () => {
   appContainer = document.getElementById('app')
@@ -88,6 +133,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     return
   }
 
-  // Initialize authentication and load appropriate page
+  // ── URL-based initial routing ─────────────────────────────────────
+  // If the user lands on e.g. /dashboard or /viewDocument?id=abc,
+  // route there directly instead of always starting at landing/dashboard.
+  const initial = pageFromUrl()
+  if (initial.name) {
+    // Replace the current history entry so we don't get a duplicate
+    history.replaceState({ page: initial.name, params: initial.params }, '', window.location.href)
+    _isPopping = true
+    await loadPage(initial.name, initial.params)
+    _isPopping = false
+    return
+  }
+
+  // No recognised page in URL — fall back to auth-based routing
   await initializeApp()
 })

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+
+  <!-- Subtle shine overlay -->
+  <rect width="64" height="64" rx="14" fill="url(#shine)"/>
+
+  <!-- Vault body -->
+  <rect x="12" y="14" width="40" height="36" rx="4" fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Inner border / door frame -->
+  <rect x="17" y="19" width="30" height="26" rx="2.5" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-opacity="0.6"/>
+
+  <!-- Vault dial (circle) -->
+  <circle cx="32" cy="32" r="7.5" fill="none" stroke="#ffffff" stroke-width="2.2"/>
+
+  <!-- Dial tick marks -->
+  <line x1="32" y1="25" x2="32" y2="27" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="32" y1="37" x2="32" y2="39" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="25" y1="32" x2="27" y2="32" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="37" y1="32" x2="39" y2="32" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Dial center dot -->
+  <circle cx="32" cy="32" r="1.8" fill="#ffffff"/>
+
+  <!-- Handle / lever -->
+  <rect x="42" y="29" width="5" height="6" rx="1.5" fill="#ffffff" fill-opacity="0.85"/>
+</svg>

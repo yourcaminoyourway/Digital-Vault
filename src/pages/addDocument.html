@@ -64,12 +64,12 @@
               </div>
 
               <div class="col-12">
-                <div class="p-4 border-2 border-dashed rounded-3 bg-light text-center mt-3">
+                <div id="dropZone" class="p-4 border-2 border-dashed rounded-3 bg-light text-center mt-3" style="cursor: pointer; transition: background-color 0.2s, border-color 0.2s;">
                   <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
                   <div class="mt-2">
                     <label for="file" class="form-label fw-bold mb-0" style="cursor: pointer;">Upload File</label>
                     <p class="small text-muted mb-2">Drag & drop or click to choose</p>
-                    <input type="file" class="form-control d-none" id="file" accept=".pdf,.jpg,.jpeg,.png" required onchange="document.getElementById('fileNameDisplay').textContent = this.files[0]?.name || ''">
+                    <input type="file" class="form-control d-none" id="file" accept=".pdf,.jpg,.jpeg,.png" required>
                     <div id="fileNameDisplay" class="fw-bold text-primary mt-2"></div>
                   </div>
                   <small class="text-muted d-block mt-1">Supported: PDF, JPG, PNG (Max 5MB)</small>

@@ -42,6 +42,14 @@ export async function render(container, params = {}) {
     loadingState.classList.add('d-none')
     content.classList.remove('d-none')
 
+    // Edit handler
+    const editBtn = document.getElementById('editAction')
+    if (editBtn) {
+      editBtn.addEventListener('click', () => {
+        loadPage('editDocument', { id: docId })
+      })
+    }
+
     // Delete handler
     const deleteBtn = document.getElementById('deleteAction')
     if (deleteBtn) {
@@ -143,10 +151,15 @@ async function displayDocument(doc) {
         const data = await downloadFile('documents', doc.file_path)
         if (!data) throw new Error('File download failed')
 
-        const url = window.URL.createObjectURL(new Blob([data]))
+        // Preserve the original file extension from the stored file path
+        const originalName = doc.file_path ? doc.file_path.split('/').pop() : ''
+        const ext = originalName.includes('.') ? originalName.substring(originalName.lastIndexOf('.')) : ''
+        const downloadName = (doc.title || 'download') + ext
+
+        const url = window.URL.createObjectURL(data instanceof Blob ? data : new Blob([data]))
         const a = document.createElement('a')
         a.href = url
-        a.download = doc.title || 'download'
+        a.download = downloadName
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)

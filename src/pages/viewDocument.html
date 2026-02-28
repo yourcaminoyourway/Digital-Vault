@@ -40,6 +40,8 @@
                 <i class="bi bi-three-dots-vertical"></i>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                <li><button class="dropdown-item fw-bold" id="editAction"><i class="bi bi-pencil me-2"></i>Edit Document</button></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><button class="dropdown-item text-danger fw-bold" id="deleteAction"><i class="bi bi-trash me-2"></i>Delete Document</button></li>
               </ul>
             </div>
@@ -99,21 +101,17 @@
             <i class="bi bi-file-earmark-lock2 text-white opacity-50" style="font-size: 6rem;"></i>
             <p class="text-white-50 mt-3 mb-0" id="fileName">secure_document.pdf</p>
           </div>
-          <div class="position-absolute top-0 end-0 p-3">
-            <span class="badge bg-success shadow-sm">
-              <i class="bi bi-shield-lock-fill me-1"></i> Encrypted
-            </span>
-          </div>
+
         </div>
       </div>
       
       <div class="card shadow-sm border-0 bg-info-soft">
         <div class="card-body p-4">
           <div class="d-flex align-items-start">
-            <i class="bi bi-info-circle-fill fs-4 text-info me-3 mt-1"></i>
+            <i class="bi bi-cloud-check-fill fs-4 text-info me-3 mt-1"></i>
             <div>
-              <h6 class="fw-bold text-info mb-1">Encrypted Storage</h6>
-              <p class="small text-muted mb-0">This file is stored with AES-256 encryption. Only you have the key to decrypt and view it.</p>
+              <h6 class="fw-bold text-info mb-1">Secure Storage</h6>
+              <p class="small text-muted mb-0">This file is stored securely in the cloud. Only you can access and download it.</p>
             </div>
           </div>
         </div>

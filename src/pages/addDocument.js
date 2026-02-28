@@ -17,6 +17,59 @@ export async function render(container) {
   if (form) {
     form.addEventListener('submit', handleAddDocument)
   }
+
+  // Set up drag & drop and click-to-upload
+  setupDropZone()
+}
+
+function setupDropZone() {
+  const dropZone = document.getElementById('dropZone')
+  const fileInput = document.getElementById('file')
+  const fileNameDisplay = document.getElementById('fileNameDisplay')
+  if (!dropZone || !fileInput) return
+
+  const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png']
+
+  const setFile = (file) => {
+    if (!allowedTypes.includes(file.type)) {
+      alert('Unsupported file type. Please upload a PDF, JPG, or PNG.')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Maximum size is 5MB.')
+      return
+    }
+    // Transfer the dropped file to the input via DataTransfer
+    const dt = new DataTransfer()
+    dt.items.add(file)
+    fileInput.files = dt.files
+    if (fileNameDisplay) fileNameDisplay.textContent = file.name
+  }
+
+  // Click anywhere in the zone to open file picker
+  dropZone.addEventListener('click', () => fileInput.click())
+  fileInput.addEventListener('change', () => {
+    if (fileNameDisplay) fileNameDisplay.textContent = fileInput.files[0]?.name || ''
+  })
+
+  // Drag & drop events
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    dropZone.style.backgroundColor = '#e2e6ea'
+    dropZone.style.borderColor = '#0d6efd'
+  })
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.backgroundColor = ''
+    dropZone.style.borderColor = ''
+  })
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault()
+    dropZone.style.backgroundColor = ''
+    dropZone.style.borderColor = ''
+    if (e.dataTransfer.files.length) {
+      setFile(e.dataTransfer.files[0])
+    }
+  })
 }
 
 async function handleAddDocument(e) {

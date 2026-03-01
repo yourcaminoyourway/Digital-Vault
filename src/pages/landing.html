@@ -163,46 +163,115 @@
               digitalvault.app/dashboard
             </div>
           </div>
-          <div class="mockup-body">
-            <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom: 2px solid #f1f5f9;">
-              <h6 class="fw-bold m-0 text-dark"><i class="bi bi-folder2-open me-2 text-primary"></i>My Documents</h6>
-              <span class="btn btn-primary btn-sm rounded-pill px-3 shadow-none" style="font-size: 0.75rem; pointer-events: none;">
+          <div class="mockup-body" style="padding: 1rem;">
+            <!-- Mockup header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold m-0 text-dark" style="font-size: 0.85rem;"><i class="bi bi-folder2-open me-2 text-primary"></i>My Documents</h6>
+              <span class="btn btn-primary btn-sm rounded-pill px-3 shadow-none" style="font-size: 0.7rem; pointer-events: none;">
                 <i class="bi bi-plus-lg me-1"></i> Add
               </span>
             </div>
 
-            <div class="d-flex align-items-center p-2 mb-2 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-              <div class="me-3 d-flex align-items-center justify-content-center rounded" style="width: 36px; height: 36px; background: rgba(15,118,110,0.08);">
-                <i class="bi bi-file-earmark-pdf-fill text-primary"></i>
-              </div>
-              <div class="flex-grow-1">
-                <div class="fw-bold text-dark" style="font-size: 0.82rem;">TV Warranty.pdf</div>
-                <div class="text-muted" style="font-size: 0.7rem;">Expires: Dec 2026</div>
-              </div>
-              <span class="badge rounded-pill" style="background: rgba(16,185,129,0.1); color: #059669; font-size: 0.65rem;">Active</span>
+            <!-- Expiry alert banner -->
+            <div class="d-flex align-items-center gap-2 p-2 mb-3 rounded-3" style="background: linear-gradient(135deg, #fef3c7, #fef9c3); border: 1px solid #fde68a; font-size: 0.7rem;">
+              <i class="bi bi-shield-exclamation text-warning" style="font-size: 0.85rem;"></i>
+              <span class="text-dark"><strong>Warranty Alert:</strong> 1 document expires soon</span>
             </div>
 
-            <div class="d-flex align-items-center p-2 mb-2 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-              <div class="me-3 d-flex align-items-center justify-content-center rounded" style="width: 36px; height: 36px; background: rgba(239,68,68,0.08);">
-                <i class="bi bi-file-earmark-image-fill text-danger"></i>
+            <!-- Card grid (miniature) -->
+            <div class="row g-2">
+              <!-- Card 1 — Image document -->
+              <div class="col-6">
+                <div class="rounded-3 overflow-hidden" style="border: 1px solid #e2e8f0; background: #fff;">
+                  <div style="height: 60px; background: linear-gradient(135deg, #dbeafe, #ede9fe); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-image text-primary" style="font-size: 1.3rem; opacity: 0.5;"></i>
+                  </div>
+                  <div class="p-2">
+                    <div class="d-flex align-items-center gap-1 mb-1">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 18px; height: 18px; background: rgba(16,185,129,0.1);">
+                        <i class="bi bi-receipt" style="font-size: 0.5rem; color: #059669;"></i>
+                      </div>
+                      <span class="fw-bold text-truncate" style="font-size: 0.65rem;">Laptop Receipt</span>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.55rem;">Samsung • Receipt</div>
+                    <div class="d-flex justify-content-between align-items-center mt-1 pt-1" style="border-top: 1px solid #f1f5f9;">
+                      <span class="text-muted" style="font-size: 0.5rem;"><i class="bi bi-calendar3 me-1"></i>Feb 28</span>
+                      <span class="badge rounded-pill" style="background: rgba(59,130,246,0.1); color: #3b82f6; font-size: 0.45rem; padding: 2px 6px;">Open</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="flex-grow-1">
-                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Laptop Receipt.png</div>
-                <div class="text-muted" style="font-size: 0.7rem;">Uploaded: Yesterday</div>
+
+              <!-- Card 2 — PDF document -->
+              <div class="col-6">
+                <div class="rounded-3 overflow-hidden" style="border: 1px solid #e2e8f0; background: #fff;">
+                  <div style="height: 60px; background: linear-gradient(135deg, #f5f5f4, #e7e5e4); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <i class="bi bi-file-earmark-pdf" style="font-size: 1.1rem; color: #ef4444; opacity: 0.7;"></i>
+                    <span style="font-size: 0.45rem; color: #a8a29e; margin-top: 2px;">PDF Preview</span>
+                  </div>
+                  <div class="p-2">
+                    <div class="d-flex align-items-center gap-1 mb-1">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 18px; height: 18px; background: rgba(14,165,233,0.1);">
+                        <i class="bi bi-shield-check" style="font-size: 0.5rem; color: #0ea5e9;"></i>
+                      </div>
+                      <span class="fw-bold text-truncate" style="font-size: 0.65rem;">TV Warranty</span>
+                      <span class="badge rounded-pill ms-auto" style="background: rgba(16,185,129,0.1); color: #059669; font-size: 0.4rem; padding: 1px 5px;">Active</span>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.55rem;">Sony • Warranty</div>
+                    <div class="d-flex justify-content-between align-items-center mt-1 pt-1" style="border-top: 1px solid #f1f5f9;">
+                      <span class="text-muted" style="font-size: 0.5rem;"><i class="bi bi-calendar3 me-1"></i>Jan 15</span>
+                      <span class="badge rounded-pill" style="background: rgba(59,130,246,0.1); color: #3b82f6; font-size: 0.45rem; padding: 2px 6px;">Open</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span class="badge rounded-pill" style="background: rgba(107,114,128,0.1); color: #6b7280; font-size: 0.65rem;">Saved</span>
+
+              <!-- Card 3 — Expiring document -->
+              <div class="col-6">
+                <div class="rounded-3 overflow-hidden" style="border: 1px solid #fde68a; background: #fff;">
+                  <div style="height: 60px; background: linear-gradient(135deg, #fefce8, #fef9c3); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-file-earmark-text text-warning" style="font-size: 1.3rem; opacity: 0.5;"></i>
+                  </div>
+                  <div class="p-2">
+                    <div class="d-flex align-items-center gap-1 mb-1">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 18px; height: 18px; background: rgba(245,158,11,0.1);">
+                        <i class="bi bi-book" style="font-size: 0.5rem; color: #f59e0b;"></i>
+                      </div>
+                      <span class="fw-bold text-truncate" style="font-size: 0.65rem;">Washer Manual</span>
+                      <span class="badge rounded-pill ms-auto" style="background: rgba(245,158,11,0.1); color: #d97706; font-size: 0.4rem; padding: 1px 5px;"><i class="bi bi-clock-fill me-1" style="font-size: 0.35rem;"></i>12d</span>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.55rem;">LG • Manual</div>
+                    <div class="d-flex justify-content-between align-items-center mt-1 pt-1" style="border-top: 1px solid #f1f5f9;">
+                      <span class="text-muted" style="font-size: 0.5rem;"><i class="bi bi-calendar3 me-1"></i>Dec 10</span>
+                      <span class="badge rounded-pill" style="background: rgba(59,130,246,0.1); color: #3b82f6; font-size: 0.45rem; padding: 2px 6px;">Open</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 4 — Another document -->
+              <div class="col-6">
+                <div class="rounded-3 overflow-hidden" style="border: 1px solid #e2e8f0; background: #fff;">
+                  <div style="height: 60px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-image text-success" style="font-size: 1.3rem; opacity: 0.5;"></i>
+                  </div>
+                  <div class="p-2">
+                    <div class="d-flex align-items-center gap-1 mb-1">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 18px; height: 18px; background: rgba(16,185,129,0.1);">
+                        <i class="bi bi-receipt" style="font-size: 0.5rem; color: #059669;"></i>
+                      </div>
+                      <span class="fw-bold text-truncate" style="font-size: 0.65rem;">Headphones Receipt</span>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.55rem;">Apple • Receipt</div>
+                    <div class="d-flex justify-content-between align-items-center mt-1 pt-1" style="border-top: 1px solid #f1f5f9;">
+                      <span class="text-muted" style="font-size: 0.5rem;"><i class="bi bi-calendar3 me-1"></i>Mar 1</span>
+                      <span class="badge rounded-pill" style="background: rgba(59,130,246,0.1); color: #3b82f6; font-size: 0.45rem; padding: 2px 6px;">Open</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="d-flex align-items-center p-2 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-              <div class="me-3 d-flex align-items-center justify-content-center rounded" style="width: 36px; height: 36px; background: rgba(245,158,11,0.08);">
-                <i class="bi bi-file-earmark-text-fill text-warning"></i>
-              </div>
-              <div class="flex-grow-1">
-                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Washing Machine Manual</div>
-                <div class="text-muted" style="font-size: 0.7rem;">Expires in 12 days</div>
-              </div>
-              <span class="badge rounded-pill" style="background: rgba(245,158,11,0.1); color: #d97706; font-size: 0.65rem;">Expiring</span>
-            </div>
           </div>
         </div>
       </div>

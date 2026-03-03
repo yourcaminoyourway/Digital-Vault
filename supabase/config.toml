@@ -1,0 +1,6 @@
+# Supabase CLI configuration
+# https://supabase.com/docs/guides/cli/config
+
+[project]
+id = ""
+# Set your project ref after running: supabase link --project-ref <your-project-ref>

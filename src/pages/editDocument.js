@@ -179,6 +179,11 @@ async function handleEditDocument(e, docId) {
   
   if (!validateDates()) return
 
+  const submitBtn = e.target.querySelector('button[type="submit"]')
+  const originalHtml = submitBtn.innerHTML
+  submitBtn.disabled = true
+  submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...'
+
   const title = document.getElementById('title').value
   const description = document.getElementById('description').value
   const category = document.getElementById('category').value
@@ -222,6 +227,8 @@ async function handleEditDocument(e, docId) {
     loadPage('dashboard')
   } catch (error) {
     console.error('Update failed:', error)
+    submitBtn.disabled = false
+    submitBtn.innerHTML = originalHtml
     alert('Failed to update document.')
   }
 }

@@ -146,9 +146,16 @@ async function handleAddDocument(e) {
   
   if (!validateDates()) return
 
+  const submitBtn = e.target.querySelector('button[type="submit"]')
+  const originalHtml = submitBtn.innerHTML
+  submitBtn.disabled = true
+  submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...'
+
   const user = await getCurrentUser()
   if (!user) {
     showMessage('You must be logged in to save a document.', 'danger')
+    submitBtn.disabled = false
+    submitBtn.innerHTML = originalHtml
     setTimeout(() => loadPage('login'), 1500)
     return
   }
@@ -183,6 +190,8 @@ async function handleAddDocument(e) {
     showMessage('Document saved successfully! Redirecting...', 'success')
     setTimeout(() => loadPage('dashboard'), 1500)
   } catch (error) {
+    submitBtn.disabled = false
+    submitBtn.innerHTML = originalHtml
     showMessage('Failed to save document: ' + error.message, 'danger')
   }
 }

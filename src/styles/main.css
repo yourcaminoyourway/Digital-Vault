@@ -83,13 +83,13 @@ p {
   opacity: 0.9;
 }
 
-.nav-link {
+.navbar .nav-link {
   font-weight: 600;
   color: #e5e7eb !important; /* Gray-200 */
   transition: color var(--transition-speed);
 }
 
-.nav-link:hover {
+.navbar .nav-link:hover {
   color: var(--secondary-color) !important;
 }
 

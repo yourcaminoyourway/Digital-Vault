@@ -7,6 +7,13 @@ export async function render(container) {
   const { default: html } = await import('./addDocument.html?raw')
   container.innerHTML = html
 
+  // Redirect to login if not authenticated
+  const user = await getCurrentUser()
+  if (!user) {
+    loadPage('login')
+    return
+  }
+
   // Start navbar rendering without blocking
   const navbarPlaceholder = container.querySelector('#navbar-placeholder')
   if (navbarPlaceholder) {
@@ -140,6 +147,11 @@ async function handleAddDocument(e) {
   if (!validateDates()) return
 
   const user = await getCurrentUser()
+  if (!user) {
+    showMessage('You must be logged in to save a document.', 'danger')
+    setTimeout(() => loadPage('login'), 1500)
+    return
+  }
   
   const title = document.getElementById('title').value
   const description = document.getElementById('description').value

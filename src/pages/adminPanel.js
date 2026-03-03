@@ -1,6 +1,7 @@
 import { getCurrentUser, loadPage, isAdmin, getUserRole } from '../services/authService.js'
 import { getAllDocuments, getAllUsers, toggleUserDisabled, deleteDocument } from '../services/documentService.js'
 import { renderNavbar } from '../components/navbar.js'
+import { Modal } from 'bootstrap'
 
 let _allDocuments = []
 let _usersMap = new Map() // userId → { email, full_name }
@@ -220,10 +221,8 @@ function showDeleteModal(docId, docTitle) {
   const confirmBtn = document.getElementById('adminDeleteConfirmBtn')
   if (titleSpan) titleSpan.textContent = docTitle
 
-  // Get Bootstrap modal instance
   const modalEl = document.getElementById('adminDeleteModal')
-  const { Modal } = window.bootstrap || {}
-  if (!Modal || !modalEl) return
+  if (!modalEl) return
 
   const modal = new Modal(modalEl)
   modal.show()

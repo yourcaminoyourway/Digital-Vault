@@ -1,8 +1,13 @@
-import { getCurrentUser, signOut, loadPage, getDisplayName } from '../services/authService.js'
+import { getCurrentUser, signOut, loadPage, getDisplayName, isAdmin, getUserRole } from '../services/authService.js'
 
 export async function renderNavbar(container) {
   const user = await getCurrentUser()
   const fullName = user ? await getDisplayName() : 'User'
+
+  // Ensure role is loaded for admin check
+  if (user) {
+    await getUserRole(user.id)
+  }
   
   const authLinks = `
     <li class="nav-item">
@@ -11,6 +16,13 @@ export async function renderNavbar(container) {
     <li class="nav-item">
       <a class="nav-link" href="#" onclick="loadPage('addDocument')">Add Document</a>
     </li>
+    ${isAdmin() ? `
+    <li class="nav-item">
+      <a class="nav-link" href="#" onclick="loadPage('adminPanel')">
+        <i class="bi bi-shield-lock me-1"></i>Admin
+      </a>
+    </li>
+    ` : ''}
     <li class="nav-item">
       <a class="nav-link d-flex align-items-center gap-2" href="#" onclick="loadPage('profile')" title="Your profile">
         <i class="bi bi-person-circle fs-5"></i>

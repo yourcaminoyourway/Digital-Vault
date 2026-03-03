@@ -14,11 +14,15 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 // ── In-memory cache to avoid repeated getSession() / profile queries ──
 let _cachedUser = undefined   // undefined = not yet fetched, null = no session
 let _cachedDisplayName = null // cached profile name
+let _cachedRole = null        // cached user role ('user' | 'admin')
 
 // Listen for auth changes to keep cache in sync
 supabase.auth.onAuthStateChange((_event, session) => {
   _cachedUser = session?.user ?? null
-  if (!session) _cachedDisplayName = null
+  if (!session) {
+    _cachedDisplayName = null
+    _cachedRole = null
+  }
 })
 
 async function ensureUserSetup(user) {
@@ -43,6 +47,13 @@ async function ensureUserSetup(user) {
 
   if (profileError) {
     console.warn('Profile setup skipped:', profileError.message)
+  }
+
+  // Cache the user's role
+  try {
+    _cachedRole = await getUserRole(user.id)
+  } catch {
+    _cachedRole = 'user'
   }
 }
 
@@ -84,6 +95,20 @@ export async function signIn(email, password) {
   }
 
   await ensureUserSetup(data.user)
+
+  // Block disabled users
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('disabled')
+    .eq('id', data.user.id)
+    .maybeSingle()
+
+  if (profile?.disabled) {
+    await supabase.auth.signOut()
+    _cachedUser = null
+    _cachedRole = null
+    throw new Error('Your account has been disabled. Please contact an administrator.')
+  }
 
   return data
 }
@@ -161,7 +186,18 @@ export async function getUserRole(userId) {
     .single()
   
   if (error) return 'user' // default role
+  _cachedRole = data.role
   return data.role
+}
+
+/** Returns the cached role synchronously. Must call getUserRole() or signIn() first. */
+export function getCachedRole() {
+  return _cachedRole || 'user'
+}
+
+/** Quick check: is the current cached role 'admin'? */
+export function isAdmin() {
+  return _cachedRole === 'admin'
 }
 
 export async function loadPage(pageName, params = {}) {

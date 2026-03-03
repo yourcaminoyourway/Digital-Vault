@@ -112,7 +112,7 @@ function pageFromUrl() {
   const validPages = [
     'dashboard', 'viewDocument', 'editDocument', 'addDocument',
     'login', 'register', 'profile', 'landing',
-    'forgotPassword', 'resetPassword'
+    'forgotPassword', 'resetPassword', 'adminPanel'
   ]
   const name = validPages.includes(path) ? path : ''
   return { name, params }
